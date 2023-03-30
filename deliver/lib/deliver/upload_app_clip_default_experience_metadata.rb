@@ -93,8 +93,7 @@ module Deliver
       end
 
       # update the subtitle
-      existing_localizations = Spaceship::ConnectAPI::AppClipDefaultExperience.get(app_clip_default_experience_id: app_clip_default_experience.id, includes: 'appClipDefaultExperienceLocalizations').app_clip_default_experience_localizations
-      UI.verbose("Received localizations #{existing_localization}")
+      existing_localizations = Spaceship::ConnectAPI::AppClipDefaultExperienceLocalizations.find_all(app_clip_default_experience_id: app_clip_default_experience.id)
 
       # from upload_metadata.rb
       app_info_worker = FastlaneCore::QueueWorker.new do |locale|
