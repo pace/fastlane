@@ -771,6 +771,41 @@ module Spaceship
         end
 
         #
+        # appClipAppStoreReviewDetails
+        #
+
+        def post_app_clip_app_store_review_detail(app_clip_default_experience_id: nil, attributes: {})
+          body = {
+            data: {
+              type: "appClipAppStoreReviewDetails",
+              attributes: attributes,
+              relationships: {
+                appClipDefaultExperience: {
+                  data: {
+                    type: "appClipDefaultExperiences",
+                    id: app_clip_default_experience_id
+                  }
+                }
+              }
+            }
+          }
+
+          tunes_request_client.post("appClipAppStoreReviewDetails", body)
+        end
+
+        def patch_app_clip_app_store_review_detail(app_clip_app_store_review_detail_id: nil, attributes: {})
+          body = {
+            data: {
+              type: "appClipAppStoreReviewDetails",
+              id: app_clip_app_store_review_detail_id,
+              attributes: attributes
+            }
+          }
+
+          tunes_request_client.patch("appClipAppStoreReviewDetails/#{app_clip_app_store_review_detail_id}", body)
+        end
+
+        #
         # appStoreVersionLocalizations
         #
 
@@ -1434,6 +1469,100 @@ module Spaceship
         # https://developer.apple.com/documentation/appstoreconnectapi/delete_a_default_app_clip_experience_image
         def delete_app_clip_header_image(app_clip_header_image_id: nil)
           tunes_request_client.delete("appClipHeaderImages/#{app_clip_header_image_id}")
+        end
+
+        #
+        # betaAppClipInvocations
+        #
+
+        def get_build_bundles_beta_app_clip_invocations(build_bundle_id:, filter: {}, includes: nil, limit: nil, sort: nil)
+          params = tunes_request_client.build_params(filter: filter, includes: includes, limit: limit, sort: sort)
+          tunes_request_client.get("buildBundles/#{build_bundle_id}/betaAppClipInvocations", params)
+        end
+
+        # https://developer.apple.com/documentation/appstoreconnectapi/create_an_app_clip_invocation_for_testers_in_testflight
+        def post_beta_app_clip_invocations(build_bundle_id:, attributes:, localized_titles:)
+          included = []
+          included_ids = []
+
+          localized_titles.each do |localized_title|
+            id = "${beta-app-clip-localized-invocation-#{localized_title[:locale]}}"
+            included << {
+              type: 'betaAppClipInvocationLocalizations',
+              id: id,
+              attributes: localized_title
+            }
+            included_ids << id
+          end
+
+          body = {
+            data: {
+              type: "betaAppClipInvocations",
+              # required attribute: url
+              attributes: attributes,
+              relationships: {
+                betaAppClipInvocationLocalizations: {
+                  data: included_ids.map { |id|
+                    {
+                      type: 'betaAppClipInvocationLocalizations',
+                      id: id
+                    }
+                  }
+                },
+                buildBundle: {
+                  data: {
+                    type: 'buildBundles',
+                    id: build_bundle_id,
+                  }
+                }
+              }
+            },
+            included: included
+          }
+
+          tunes_request_client.post("betaAppClipInvocations", body)
+        end
+
+        def delete_beta_app_clip_invocation(beta_app_clip_invocation_id:)
+          tunes_request_client.delete("betaAppClipInvocations/#{beta_app_clip_invocation_id}")
+        end
+
+        #
+        # betaAppClipInvocationLocalizations
+        #
+
+        # https://developer.apple.com/documentation/appstoreconnectapi/create_localized_metadata_for_a_beta_app_clip_invocation
+        def post_beta_app_clip_invocation_localization(beta_app_clip_invocation_id:, attributes:)
+          body = {
+            data: {
+              type: "betaAppClipInvocationLocalizations",
+              # required attributes: locale, title
+              attributes: attributes,
+              relationships: {
+                betaAppClipInvocation: {
+                  data: {
+                    type: 'betaAppClipInvocations',
+                    id: beta_app_clip_invocation_id,
+                  }
+                }
+              }
+            }
+          }
+
+          tunes_request_client.post("betaAppClipInvocationLocalizations", body)
+        end
+
+        # https://developer.apple.com/documentation/appstoreconnectapi/modify_localized_metadata_of_an_app_clip_invocation_for_testers
+        def patch_beta_app_clip_invocation_localization(beta_app_clip_invocation_localization_id:, attributes:)
+          body = {
+            data: {
+              type: "betaAppClipInvocationLocalizations",
+              id: beta_app_clip_invocation_localization_id,
+              attributes: attributes
+            }
+          }
+
+          tunes_request_client.patch("betaAppClipInvocationLocalizations/#{beta_app_clip_invocation_localization_id}", body)
         end
       end
     end
