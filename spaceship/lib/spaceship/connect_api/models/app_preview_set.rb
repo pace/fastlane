@@ -16,7 +16,9 @@ module Spaceship
         IPHONE_47 = "IPHONE_47"
         IPHONE_55 = "IPHONE_55"
         IPHONE_58 = "IPHONE_58"
+        IPHONE_61 = "IPHONE_61"
         IPHONE_65 = "IPHONE_65"
+        IPHONE_67 = "IPHONE_67"
 
         IPAD_97 = "IPAD_97"
         IPAD_105 = "IPAD_105"
@@ -26,13 +28,17 @@ module Spaceship
 
         DESKTOP = "DESKTOP"
 
+        APPLE_TV = "APPLE_TV"
+
         ALL = [
           IPHONE_35,
           IPHONE_40,
           IPHONE_47,
           IPHONE_55,
           IPHONE_58,
+          IPHONE_61,
           IPHONE_65,
+          IPHONE_67,
 
           IPAD_97,
           IPAD_105,
@@ -40,7 +46,9 @@ module Spaceship
           IPAD_PRO_129,
           IPAD_PRO_3GEN_129,
 
-          DESKTOP
+          DESKTOP,
+
+          APPLE_TV
         ]
       end
 

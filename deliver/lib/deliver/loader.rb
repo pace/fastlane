@@ -1,6 +1,8 @@
 require_relative 'module'
 require_relative 'app_screenshot'
 require_relative 'app_screenshot_validator'
+require_relative 'app_preview'
+require_relative 'app_preview_validator'
 require_relative 'app_clip_header_image'
 require_relative 'upload_metadata'
 require_relative 'languages'
@@ -115,6 +117,36 @@ module Deliver
       end
 
       valid_screenshots
+    end
+
+    # Returns the list of valid app previews. When detecting invalid previews, this will cause an error.
+    #
+    # @param root [String] A directory path
+    # @param ignore_validation [String] Set false not to raise the error when finding invalid folder name
+    # @return [Array<Deliver::AppPreview>] The list of AppPreview that exist under given `root` directory
+    def self.load_app_previews(root, ignore_validation)
+      app_previews = language_folders(root, ignore_validation, true).flat_map do |language_folder|
+        paths = language_folder.file_paths('{mov,mp4,m4v}')
+        paths.map { |path| AppPreview.new(path, language_folder.language) }
+      end
+
+      errors = []
+      valid_previews = app_previews.select { |preview| Deliver::AppPreviewValidator.validate(preview, errors) }
+
+      errors_to_skip, errors_to_crash = errors.partition(&:to_skip)
+
+      unless errors_to_skip.empty?
+        UI.important("🏃 Previews to be skipped are detected!")
+        errors_to_skip.each { |error| UI.message(error) }
+      end
+
+      unless errors_to_crash.empty?
+        UI.important("🚫 Invalid previews were detected! Here are the reasons:")
+        errors_to_crash.each { |error| UI.error(error) }
+        UI.user_error!("Canceled uploading previews. Please check the error messages above and fix the previews.")
+      end
+
+      valid_previews
     end
 
     # Returns the list of valid app clip header images. When detecting invalid header images, this
