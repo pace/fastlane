@@ -127,7 +127,7 @@ module Deliver
     def self.determine_preview_size(path)
       filename = Pathname.new(path).basename.to_s
       devices.each do |screen_size, name|
-        if name.downcase == filename.downcase
+        if filename.downcase.include?(name.downcase)
           return screen_size
         end
       end
