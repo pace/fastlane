@@ -12,6 +12,7 @@ require_relative 'upload_metadata'
 require_relative 'upload_app_clip_default_experience_metadata'
 require_relative 'upload_app_clip_default_experience_header_images'
 require_relative 'upload_screenshots'
+require_relative 'upload_app_previews'
 require_relative 'sync_screenshots'
 require_relative 'detect_values'
 
@@ -135,7 +136,7 @@ module Deliver
       end
     end
 
-    # Upload all metadata, screenshots, pricing information, etc. to App Store Connect
+    # Upload all metadata, screenshots, previews, pricing information, etc. to App Store Connect
     def upload_metadata
       # App clip experience metadata upload must happen before the upload metadata step. The app
       # clip app store review detail upload depends on there being a valid app clip default
@@ -145,10 +146,12 @@ module Deliver
 
       upload_metadata = UploadMetadata.new
       upload_screenshots = UploadScreenshots.new
+      upload_previews = UploadPreviews.new
 
       # First, collect all the things for the HTML Report
       screenshots = upload_screenshots.collect_screenshots(options)
       upload_metadata.load_from_filesystem(options)
+      previews = upload_previews.collect_previews(options)
 
       # Assign "default" values to all languages
       upload_metadata.assign_defaults(options)
@@ -158,6 +161,7 @@ module Deliver
 
       # Commit
       upload_metadata.upload(options)
+      upload_previews.upload(options, previews)
 
       if options[:sync_screenshots]
         sync_screenshots = SyncScreenshots.new(app: Deliver.cache[:app], platform: Spaceship::ConnectAPI::Platform.map(options[:platform]))
