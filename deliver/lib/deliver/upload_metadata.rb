@@ -355,6 +355,7 @@ module Deliver
       end
 
       review_information(version)
+      set_app_clip_review_information(version)
       review_attachment_file(version)
       app_rating(app_info)
     end
